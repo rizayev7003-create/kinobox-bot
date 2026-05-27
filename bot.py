@@ -1,23 +1,22 @@
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+import telebot
+from telebot import types
 
 TOKEN = "8811500907:AAGnSrD-1duRVksn0CugYtVwsdlqDXvHOVc"
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+bot = telebot.TeleBot(TOKEN)
 
-menu = ReplyKeyboardMarkup(resize_keyboard=True)
+menu = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
-btn1 = KeyboardButton("🔎 Kinoni qidirish")
-btn2 = KeyboardButton("🔥 Trend kinolar")
-btn3 = KeyboardButton("🎬 Janrlar")
-btn4 = KeyboardButton("📸 Instagram")
+btn1 = types.KeyboardButton("🔎 Kinoni qidirish")
+btn2 = types.KeyboardButton("🔥 Trend kinolar")
+btn3 = types.KeyboardButton("🎬 Janrlar")
+btn4 = types.KeyboardButton("📸 Instagram")
 
 menu.add(btn1, btn2)
 menu.add(btn3, btn4)
 
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):
+@bot.message_handler(commands=['start'])
+def start(message):
     text = """
 🎬 Botimizga xush kelibsiz!
 
@@ -28,15 +27,15 @@ Bu yerda siz:
 
 Pastdagi tugmalardan foydalaning 👇
 """
-    await message.answer(text, reply_markup=menu)
+    bot.send_message(message.chat.id, text, reply_markup=menu)
 
-@dp.message_handler(lambda message: message.text == "🔎 Kinoni qidirish")
-async def search_movie(message: types.Message):
-    await message.answer("🎬 Kino kodini yuboring 👇")
+@bot.message_handler(func=lambda message: message.text == "🔎 Kinoni qidirish")
+def search_movie(message):
+    bot.send_message(message.chat.id, "🎬 Kino kodini yuboring 👇")
 
-@dp.message_handler(lambda message: message.text == "🔥 Trend kinolar")
-async def trend_movies(message: types.Message):
-    await message.answer("""
+@bot.message_handler(func=lambda message: message.text == "🔥 Trend kinolar")
+def trend_movies(message):
+    bot.send_message(message.chat.id, """
 🔥 Bugungi trend kinolar:
 
 1. Squid Game
@@ -45,9 +44,9 @@ async def trend_movies(message: types.Message):
 4. Wednesday
 """)
 
-@dp.message_handler(lambda message: message.text == "🎬 Janrlar")
-async def genres(message: types.Message):
-    await message.answer("""
+@bot.message_handler(func=lambda message: message.text == "🎬 Janrlar")
+def genres(message):
+    bot.send_message(message.chat.id, """
 🎬 Janrlar:
 
 😍 Romantika
@@ -58,9 +57,8 @@ async def genres(message: types.Message):
 🇹🇷 Turk serial
 """)
 
-@dp.message_handler(lambda message: message.text == "📸 Instagram")
-async def instagram(message: types.Message):
-    await message.answer("https://instagram.com/kino.box.tv")
+@bot.message_handler(func=lambda message: message.text == "📸 Instagram")
+def instagram(message):
+    bot.send_message(message.chat.id, "https://instagram.com/kino.box.tv")
 
-if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+bot.infinity_polling()
