@@ -17,6 +17,7 @@ menu.add(btn3, btn4)
 
 @bot.message_handler(commands=['start'])
 def start(message):
+
     text = """
 🎬 Botimizga xush kelibsiz!
 
@@ -27,23 +28,10 @@ Bu yerda siz:
 
 Pastdagi tugmalardan foydalaning 👇
 """
+
     bot.send_message(message.chat.id, text, reply_markup=menu)
 
-@bot.message_handler(func=lambda message: message.text == "🔎 Kinoni qidirish")
-def search_movie(message):
-    bot.send_message(message.chat.id, "🎬 Kino kodini yuboring 👇")
-
-@bot.message_handler(func=lambda message: message.text == "🔥 Trend kinolar")
-def trend_movies(message):
-    bot.send_message(message.chat.id, """
-🔥 Bugungi trend kinolar:
-
-1. Squid Game
-2. Fast X
-3. Interstellar
-4. Wednesday
-""")
-
+# Kino qidirish
 @bot.message_handler(func=lambda message: message.text == "🔎 Kinoni qidirish")
 def search_movie(message):
 
@@ -62,8 +50,51 @@ def search_movie(message):
         reply_markup=search_menu
     )
 
+# Orqaga
+@bot.message_handler(func=lambda message: message.text == "🔙 Orqaga")
+def back_menu(message):
+
+    bot.send_message(
+        message.chat.id,
+        "🏠 Asosiy menu",
+        reply_markup=menu
+    )
+
+# Trend
+@bot.message_handler(func=lambda message: message.text == "🔥 Trend kinolar")
+def trend_movies(message):
+
+    bot.send_message(message.chat.id, """
+🔥 Bugungi trend kinolar:
+
+1. Squid Game
+2. Fast X
+3. Interstellar
+4. Wednesday
+""")
+
+# Janrlar
+@bot.message_handler(func=lambda message: message.text == "🎬 Janrlar")
+def genres(message):
+
+    bot.send_message(message.chat.id, """
+🎬 Janrlar:
+
+😍 Romantika
+😂 Komediya
+👻 Ujas
+🚀 Fantastika
+🇰🇷 Koreys drama
+🇹🇷 Turk serial
+""")
+
+# Instagram
 @bot.message_handler(func=lambda message: message.text == "📸 Instagram")
 def instagram(message):
-    bot.send_message(message.chat.id, "https://instagram.com/kino.box.tv")
+
+    bot.send_message(
+        message.chat.id,
+        "https://instagram.com/kino.box.tv"
+    )
 
 bot.infinity_polling()
