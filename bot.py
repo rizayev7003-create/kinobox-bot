@@ -44,18 +44,23 @@ def trend_movies(message):
 4. Wednesday
 """)
 
-@bot.message_handler(func=lambda message: message.text == "🎬 Janrlar")
-def genres(message):
-    bot.send_message(message.chat.id, """
-🎬 Janrlar:
+@bot.message_handler(func=lambda message: message.text == "🔎 Kinoni qidirish")
+def search_movie(message):
 
-😍 Romantika
-😂 Komediya
-👻 Ujas
-🚀 Fantastika
-🇰🇷 Koreys drama
-🇹🇷 Turk serial
-""")
+    search_menu = types.ReplyKeyboardMarkup(resize_keyboard=True)
+
+    btn1 = types.KeyboardButton("🎥 Marvel")
+    btn2 = types.KeyboardButton("👻 Ujas")
+    btn3 = types.KeyboardButton("🔙 Orqaga")
+
+    search_menu.add(btn1, btn2)
+    search_menu.add(btn3)
+
+    bot.send_message(
+        message.chat.id,
+        "🎬 Kategoriya tanlang 👇",
+        reply_markup=search_menu
+    )
 
 @bot.message_handler(func=lambda message: message.text == "📸 Instagram")
 def instagram(message):
