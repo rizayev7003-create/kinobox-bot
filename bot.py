@@ -5,21 +5,44 @@ TOKEN = "8811500907:AAGnSrD-1duRVksn0CugYtVwsdlqDXvHOVc"
 
 bot = telebot.TeleBot(TOKEN)
 
-# ====== KANAL ======
-CHANNEL_USERNAME = "@kino_box_tv"
+# =========================
+# KANALLAR
+# =========================
 
-# ====== ASOSIY MENU ======
+CHANNELS = [
+    "https://t.me/+4ItSLWyrtL81YzRi",
+    "https://t.me/+65VNr7lvVmNiYTZi",
+    "https://t.me/+0HJGGGlBuZxhMjMy"
+]
+
+# =========================
+# KINO BAZA
+# =========================
+
+movies = {
+    "101": "https://t.me/kanalingiz/5",
+    "102": "https://t.me/kanalingiz/8",
+    "103": "https://t.me/kanalingiz/12"
+}
+
+# =========================
+# ASOSIY MENU
+# =========================
+
 menu = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
-btn1 = types.KeyboardButton("🔎 Kinoni qidirish")
-btn2 = types.KeyboardButton("🔥 Trend kinolar")
-btn3 = types.KeyboardButton("🎬 Janrlar")
-btn4 = types.KeyboardButton("📸 Instagram")
+btn1 = types.KeyboardButton("🔎 Kino qidirish")
+btn2 = types.KeyboardButton("🎬 Janrlar")
+btn3 = types.KeyboardButton("🔥 Trend kinolar")
+btn4 = types.KeyboardButton("📸 Instagram sahifamiz")
 
 menu.add(btn1, btn2)
 menu.add(btn3, btn4)
 
-# ====== START ======
+# =========================
+# START
+# =========================
+
 @bot.message_handler(commands=['start'])
 def start(message):
 
@@ -40,75 +63,135 @@ Pastdagi tugmalardan foydalaning 👇
         reply_markup=menu
     )
 
-# ====== KINO QIDIRISH ======
-@bot.message_handler(func=lambda message: message.text == "🔎 Kinoni qidirish")
-def search_movie(message):
+# =========================
+# OBUNA TEKSHIRISH
+# =========================
 
-    try:
+def check_sub(user_id):
 
-        user_status = bot.get_chat_member(
-            CHANNEL_USERNAME,
-            message.from_user.id
-        ).status
+    for channel in CHANNELS:
 
-        if user_status in ["member", "administrator", "creator"]:
+        try:
+            member = bot.get_chat_member(channel, user_id)
 
-            bot.send_message(
-                message.chat.id,
-                "🎬 Kino kodini yuboring 👇"
-            )
+            if member.status not in ["member", "administrator", "creator"]:
+                return False
 
-        else:
+        except:
+            return False
 
-            markup = types.InlineKeyboardMarkup()
+    return True
 
-            btn = types.InlineKeyboardButton(
-                "📢 Kanalga obuna bo‘lish",
-                url="https://t.me/kanalingiz"
-            )
+# =========================
+# KINO QIDIRISH
+# =========================
 
-            markup.add(btn)
+@bot.message_handler(func=lambda message: message.text == "🔎 Kino qidirish")
+def movie_search(message):
 
-            bot.send_message(
-                message.chat.id,
-                "❌ Botdan foydalanish uchun kanalga obuna bo‘ling!",
-                reply_markup=markup
-            )
+    if check_sub(message.from_user.id):
 
-    except:
+        msg = bot.send_message(
+            message.chat.id,
+            "🎬 Kino kodini yuboring 👇"
+        )
+
+        bot.register_next_step_handler(msg, get_movie)
+
+    else:
+
+        markup = types.ReplyKeyboardMarkup(
+            resize_keyboard=True
+        )
+
+        btn1 = types.KeyboardButton("✅ Obuna bo‘ldim")
+        btn2 = types.KeyboardButton("🔙 Orqaga")
+
+        markup.add(btn1)
+        markup.add(btn2)
+
+        text = """
+Kinoni qidirish uchun ushbu kanallarimizga obuna bo'lgan bo'lishingiz kerak 😊
+
+🎬 Kanal 1 - https://t.me/+4ItSLWyrtL81YzRi
+🎬 Kanal 2 - https://t.me/+65VNr7lvVmNiYTZi
+🎬 Kanal 3 - https://t.me/+0HJGGGlBuZxhMjMy
+"""
 
         bot.send_message(
             message.chat.id,
-            "❌ Botni kanalga admin qiling!"
+            text,
+            reply_markup=markup
         )
 
-# ====== TREND ======
-@bot.message_handler(func=lambda message: message.text == "🔥 Trend kinolar")
-def trend_movies(message):
+# =========================
+# OBUNA BO‘LDIM
+# =========================
 
-    bot.send_message(message.chat.id, """
-🔥 Bugungi trend kinolar:
+@bot.message_handler(func=lambda message: message.text == "✅ Obuna bo‘ldim")
+def subscribed(message):
 
-1. Squid Game
-2. Fast X
-3. Interstellar
-4. Wednesday
-""")
+    if check_sub(message.from_user.id):
 
-# ====== JANRLAR ======
+        msg = bot.send_message(
+            message.chat.id,
+            "🎬 Kino kodini yuboring 👇"
+        )
+
+        bot.register_next_step_handler(msg, get_movie)
+
+    else:
+
+        bot.send_message(
+            message.chat.id,
+            "❌ Siz hali barcha kanallarga obuna bo‘lmagansiz!"
+        )
+
+# =========================
+# KINO CHIQARISH
+# =========================
+
+def get_movie(message):
+
+    code = message.text
+
+    if code in movies:
+
+        bot.send_message(
+            message.chat.id,
+            f"🎬 Kino havolasi:\n\n{movies[code]}"
+        )
+
+    else:
+
+        bot.send_message(
+            message.chat.id,
+            "❌ Bunday kino topilmadi!"
+        )
+
+# =========================
+# JANRLAR
+# =========================
+
 @bot.message_handler(func=lambda message: message.text == "🎬 Janrlar")
 def genres(message):
 
-    genre_menu = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    genre_menu = types.ReplyKeyboardMarkup(
+        resize_keyboard=True
+    )
 
-    btn1 = types.KeyboardButton("🎥 Marvel")
-    btn2 = types.KeyboardButton("👻 Ujas")
-    btn3 = types.KeyboardButton("🚀 Fantastika")
-    btn4 = types.KeyboardButton("🔙 Orqaga")
+    btn1 = types.KeyboardButton("😍 Romantika")
+    btn2 = types.KeyboardButton("😂 Komediya")
+    btn3 = types.KeyboardButton("👻 Ujas")
+    btn4 = types.KeyboardButton("🚀 Fantastika")
+    btn5 = types.KeyboardButton("🇰🇷 Koreys drama")
+    btn6 = types.KeyboardButton("🇹🇷 Turk serial")
+    btn7 = types.KeyboardButton("🔙 Orqaga")
 
     genre_menu.add(btn1, btn2)
-    genre_menu.add(btn3)
-    genre_menu.add(btn4)
+    genre_menu.add(btn3, btn4)
+    genre_menu.add(btn5, btn6)
+    genre_menu.add(btn7)
 
     bot.send_message(
         message.chat.id,
@@ -116,9 +199,12 @@ def genres(message):
         reply_markup=genre_menu
     )
 
-# ====== ORQAGA ======
+# =========================
+# ORQAGA
+# =========================
+
 @bot.message_handler(func=lambda message: message.text == "🔙 Orqaga")
-def back_menu(message):
+def back(message):
 
     bot.send_message(
         message.chat.id,
@@ -126,8 +212,30 @@ def back_menu(message):
         reply_markup=menu
     )
 
-# ====== INSTAGRAM ======
-@bot.message_handler(func=lambda message: message.text == "📸 Instagram")
+# =========================
+# TREND KINOLAR
+# =========================
+
+@bot.message_handler(func=lambda message: message.text == "🔥 Trend kinolar")
+def trend(message):
+
+    bot.send_message(
+        message.chat.id,
+        """
+🔥 Bugungi trend kinolar:
+
+1. Squid Game
+2. Fast X
+3. Wednesday
+4. Interstellar
+"""
+    )
+
+# =========================
+# INSTAGRAM
+# =========================
+
+@bot.message_handler(func=lambda message: message.text == "📸 Instagram sahifamiz")
 def instagram(message):
 
     bot.send_message(
@@ -135,5 +243,10 @@ def instagram(message):
         "https://instagram.com/kino.box.tv"
     )
 
-# ====== BOT ======
+# =========================
+# BOTNI ISHGA TUSHIRISH
+# =========================
+
+print("Bot ishga tushdi...")
+
 bot.infinity_polling()
